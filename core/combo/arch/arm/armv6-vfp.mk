@@ -9,6 +9,9 @@ ARCH_ARM_HAVE_CLZ               := true
 ARCH_ARM_HAVE_FFS               := true
 ARCH_ARM_HAVE_VFP               := true
 
+ifeq ($(strip $(TARGET_CPU_VARIANT)),)
+TARGET_CPU_VARIANT              := generic
+endif
 ifeq ($(strip $(TARGET_ARCH_VARIANT_FPU)),)
 TARGET_ARCH_VARIANT_FPU         := vfp
 endif
