@@ -104,6 +104,7 @@ OPTIONS.omit_prereq = False
 OPTIONS.extra_script = None
 OPTIONS.aslr_mode = True
 OPTIONS.worker_threads = 3
+OPTIONS.two_step = False
 OPTIONS.backuptool = False
 OPTIONS.override_device = 'auto'
 OPTIONS.override_prop = False
@@ -554,6 +555,8 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
   boot_img = common.GetBootableImage("boot.img", "boot.img",
                                      OPTIONS.input_tmp, "BOOT")
+  if not OPTIONS.no_separate_recovery:
+    MakeRecoveryPatch(OPTIONS.input_tmp, output_zip, recovery_img, boot_img)
 
   #recovery_img = common.GetBootableImage("recovery.img", "recovery.img",
   #                                       OPTIONS.input_tmp, "RECOVERY")
@@ -758,11 +761,12 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
   updating_boot = (not OPTIONS.two_step and
                    (source_boot.data != target_boot.data))
 
-  #source_recovery = common.GetBootableImage(
-  #    "/tmp/recovery.img", "recovery.img", OPTIONS.source_tmp, "RECOVERY",
-  #    OPTIONS.source_info_dict)
-  #target_recovery = common.GetBootableImage(
-  #    "/tmp/recovery.img", "recovery.img", OPTIONS.target_tmp, "RECOVERY")
+  if not OPTIONS.no_separate_recovery:
+    source_recovery = common.GetBootableImage(
+        "/tmp/recovery.img", "recovery.img", OPTIONS.source_tmp, "RECOVERY",
+        OPTIONS.source_info_dict)
+    target_recovery = common.GetBootableImage(
+        "/tmp/recovery.img", "recovery.img", OPTIONS.target_tmp, "RECOVERY")
   updating_recovery = (source_recovery.data != target_recovery.data)
 
   # Here's how we divide up the progress bar:
@@ -1042,6 +1046,8 @@ def main(argv):
         OPTIONS.aslr_mode = False
     elif o in ("--worker_threads"):
       OPTIONS.worker_threads = int(a)
+    elif o in ("-2", "--two_step"):
+      OPTIONS.two_step = True
     elif o in ("--backup"):
       OPTIONS.backuptool = bool(a.lower() == 'true')
     elif o in ("--override_device"):
@@ -1064,10 +1070,11 @@ def main(argv):
                                               "extra_script=",
                                               "worker_threads=",
                                               "aslr_mode=",
+                                              "two_step",
                                               "backup=",
                                               "override_device=",
                                               "override_prop=",
-                                              "two_step",
+                                              "no_separate_recovery=",
                                               ],
                              extra_option_handler=option_handler)
 
