@@ -441,10 +441,13 @@ def WriteFullOTAPackage(input_zip, output_zip):
 #    script.AssertOlderBuild(ts, ts_text)
 
   AppendAssertions(script, OPTIONS.info_dict)
+  script.Print("Checking your device")
   device_specific.FullOTA_Assertions()
+  script.Print("Installation starting")
   device_specific.FullOTA_InstallBegin()
 
   if OPTIONS.backuptool:
+    script.Print("Running backuptool")
     script.Mount("/system")
     script.RunBackup("backup")
     script.Unmount("/system")
@@ -455,18 +458,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
     script.Print("Formatting /data")
     script.FormatPartition("/data")
 
-  script.Print("#######################################");
-  script.Print("# _____            __  __  ______     #");
-  script.Print("#/\  __`\  /'\_/`\/\ \/\ \/\__  _\    #");
-  script.Print("#\ \ \/\ \/\      \ \ `\\ \/_/\ \/    #");
-  script.Print("# \ \ \ \ \ \ \__\ \ \ , ` \ \ \ \    #");
-  script.Print("#  \ \ \_\ \ \ \_/\ \ \ \`\ \ \_\ \__ #");
-  script.Print("#   \ \_____\ \_\\ \_\ \_\ \_\/\_____\#");
-  script.Print("#    \/_____/\/_/ \/_/\/_/\/_/\/_____/#");
-  script.Print("#                                     #");
-  script.Print("#######################################");
-
   if "selinux_fc" in OPTIONS.info_dict:
+    script.Print("Writing selinux policy")
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
   script.Print("Formatting /system")
@@ -494,6 +487,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.ShowProgress(0.2, 0)
 
   if OPTIONS.backuptool:
+    script.Print("Restoring from backuptool")
     script.ShowProgress(0.2, 10)
     script.RunBackup("restore")
 
@@ -502,7 +496,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.WriteRawImage("/boot", "boot.img")
 
   script.ShowProgress(0.1, 0)
-  script.Print("Enjoy OMNI ROM!");
+  script.Print("Enjoy Nameless ROM!");
   device_specific.FullOTA_InstallEnd()
 
   if OPTIONS.extra_script is not None:
