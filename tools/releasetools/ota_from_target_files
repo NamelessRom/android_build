@@ -441,9 +441,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
 #    script.AssertOlderBuild(ts, ts_text)
 
   AppendAssertions(script, OPTIONS.info_dict)
-  script.Print("Checking your device")
   device_specific.FullOTA_Assertions()
-  script.Print("Installation starting")
   device_specific.FullOTA_InstallBegin()
 
   if OPTIONS.backuptool:
