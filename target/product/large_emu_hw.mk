@@ -30,7 +30,7 @@ PRODUCT_PACKAGES := \
     Exchange2 \
     Gallery2 \
     LatinIME \
-    Launcher2 \
+    Launcher3 \
     Music \
     Provision \
     QuickSearchBox \
