@@ -445,7 +445,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
   device_specific.FullOTA_InstallBegin()
 
   if OPTIONS.backuptool:
-    script.Print("Running backuptool")
     script.Mount("/system")
     script.RunBackup("backup")
     script.Unmount("/system")
@@ -453,11 +452,9 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.ShowProgress(0.5, 0)
 
   if OPTIONS.wipe_user_data:
-    script.Print("Formatting /data")
     script.FormatPartition("/data")
 
   if "selinux_fc" in OPTIONS.info_dict:
-    script.Print("Writing selinux policy")
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
   script.Print("Formatting /system")
@@ -477,6 +474,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
                                          OPTIONS.input_tmp, "RECOVERY")
   MakeRecoveryPatch(OPTIONS.input_tmp, output_zip, recovery_img, boot_img)
 
+  script.Print("Setting permissions")
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
 
@@ -485,7 +483,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.ShowProgress(0.2, 0)
 
   if OPTIONS.backuptool:
-    script.Print("Restoring from backuptool")
     script.ShowProgress(0.2, 10)
     script.RunBackup("restore")
 
