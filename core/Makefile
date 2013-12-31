@@ -21,6 +21,7 @@ ifneq ($(BUILD_WITH_COLORS),0)
   CL_BLD_MAG="\033[1m\033[35m"
   CL_BLD_CYN="\033[1m\033[36m"
   CL_BLD_WHT="\033[1m\033[37m"
+  CL_PFX="\033[33m"
 # Map colors
   # host
   PRT_HST := $(CL_YLW)
