@@ -63,6 +63,7 @@ parser.add_argument('-a', '--abandon-first', action='store_true', help='before c
 parser.add_argument('-b', '--auto-branch', action='store_true', help='shortcut to "--start-branch auto --abandon-first --ignore-missing"')
 parser.add_argument('-q', '--quiet', action='store_true', help='print as little as possible')
 parser.add_argument('-v', '--verbose', action='store_true', help='print extra information to aid in debug')
+parser.add_argument('-f', '--force', action='store_true', help='force cherry pick even if commit has been merged')
 args = parser.parse_args()
 if args.start_branch == None and args.abandon_first:
     parser.error('if --abandon-first is set, you must also give the branch name with --start-branch')
@@ -92,25 +93,23 @@ def which(program):
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
                 return exe_file
-    sys.stderr.write('ERROR: Could not find the %s program in $PATH\n' % program)
-    sys.exit(1)
+
+    return None
 
 # Simple wrapper for os.system() that:
 #   - exits on error
 #   - prints out the command if --verbose
 #   - suppresses all output if --quiet
-def execute_cmd(cmd, exit_on_fail=True):
+def execute_cmd(cmd):
     if args.verbose:
         print('Executing: %s' % cmd)
     if args.quiet:
         cmd = cmd.replace(' && ', ' &> /dev/null && ')
         cmd = cmd + " &> /dev/null"
-    ret = os.system(cmd)
-    if ret and exit_on_fail:
+    if os.system(cmd):
         if not args.verbose:
-            sys.stderr.write('\nERROR: Command that failed:\n%s' % cmd)
+            print('\nCommand that failed:\n%s' % cmd)
         sys.exit(1)
-    return ret
 
 # Verifies whether pathA is a subdirectory (or the same) as pathB
 def is_pathA_subdir_of_pathB(pathA, pathB):
@@ -120,20 +119,25 @@ def is_pathA_subdir_of_pathB(pathA, pathB):
 
 # Find the necessary bins - repo
 repo_bin = which('repo')
+if repo_bin == None:
+    repo_bin = os.path.join(os.environ["HOME"], 'repo')
+    if not is_exe(repo_bin):
+        sys.stderr.write('ERROR: Could not find the repo program in either $PATH or $HOME/bin\n')
+        sys.exit(1)
 
 # Find the necessary bins - git
 git_bin = which('git')
+if not is_exe(git_bin):
+    sys.stderr.write('ERROR: Could not find the git program in $PATH\n')
+    sys.exit(1)
 
 # Change current directory to the top of the tree
-if os.environ.get('ANDROID_BUILD_TOP', None):
+if 'ANDROID_BUILD_TOP' in os.environ:
     top = os.environ['ANDROID_BUILD_TOP']
     if not is_pathA_subdir_of_pathB(os.getcwd(), top):
         sys.stderr.write('ERROR: You must run this tool from within $ANDROID_BUILD_TOP!\n')
         sys.exit(1)
     os.chdir(os.environ['ANDROID_BUILD_TOP'])
-else:
-    sys.stderr.write('ERROR: $ANDROID_BUILD_TOP is not defined. please check build/envsetup.sh\n')
-    sys.exit(1)
 
 # Sanity check that we are being run from the top level of the tree
 if not os.path.isdir('.repo'):
@@ -186,7 +190,7 @@ for change in args.change_number:
     # gerrit returns two lines, a magic string and then valid JSON:
     #   )]}'
     #   [ ... valid JSON ... ]
-    url = 'https://95.85.32.170:8443/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+    url = 'http://gerrit.nameless-rom.org/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
     if args.verbose:
         print('Fetching from: %s\n' % url)
     f = urllib.request.urlopen(url)
@@ -200,72 +204,82 @@ for change in args.change_number:
     if matchObj:
         sys.stderr.write('ERROR: Change number %s was not found on the server\n' % change)
         sys.exit(1)
+    d = re.sub(r'\[(.*)\]', r'\1', d)
 
     # Parse the JSON
     try:
-        data_array = json.loads(d)
+        data = json.loads(d)
     except ValueError:
         sys.stderr.write('ERROR: The response from the server could not be parsed properly\n')
-        if args.verbose:
+        if not args.verbose:
             sys.stderr.write('The malformed response was: %s\n' % d)
         sys.exit(1)
-    # Enumerate through JSON response
-    for (i, data) in enumerate(data_array):
-        date_fluff       = '.000000000'
-        project_name     = data['project']
-        change_number    = data['_number']
-        current_revision = data['revisions'][data['current_revision']]
-        patch_number     = current_revision['_number']
-        fetch_url        = current_revision['fetch']['anonymous http']['url']
-        fetch_ref        = current_revision['fetch']['anonymous http']['ref']
-        author_name      = current_revision['commit']['author']['name']
-        author_email     = current_revision['commit']['author']['email']
-        author_date      = current_revision['commit']['author']['date'].replace(date_fluff, '')
-        committer_name   = current_revision['commit']['committer']['name']
-        committer_email  = current_revision['commit']['committer']['email']
-        committer_date   = current_revision['commit']['committer']['date'].replace(date_fluff, '')
-        subject          = current_revision['commit']['subject']
 
-        # Convert the project name to a project path
-        #   - check that the project path exists
-        if project_name in project_name_to_path:
-            project_path = project_name_to_path[project_name];
-        elif args.ignore_missing:
-            print('WARNING: Skipping %d since there is no project directory for: %s\n' % (change_number, project_name))
-            continue;
+    # Extract information from the JSON response
+    date_fluff       = '.000000000'
+    project_name     = data['project']
+    change_number    = data['_number']
+    status           = data['status']
+    current_revision = data['revisions'][data['current_revision']]
+    patch_number     = current_revision['_number']
+    fetch_url        = current_revision['fetch']['anonymous http']['url']
+    fetch_ref        = current_revision['fetch']['anonymous http']['ref']
+    author_name      = current_revision['commit']['author']['name']
+    author_email     = current_revision['commit']['author']['email']
+    author_date      = current_revision['commit']['author']['date'].replace(date_fluff, '')
+    committer_name   = current_revision['commit']['committer']['name']
+    committer_email  = current_revision['commit']['committer']['email']
+    committer_date   = current_revision['commit']['committer']['date'].replace(date_fluff, '')
+    subject          = current_revision['commit']['subject']
+
+    # Check if commit has already been merged and exit if it has, unless -f is specified
+    if status == "MERGED":
+        if args.force:
+            print("!! Force-picking a merged commit !!\n")
         else:
-            sys.stderr.write('ERROR: For %d, could not determine the project path for project %s\n' % (change_number, project_name))
-            continue;
+            print("Commit already merged. Skipping the cherry pick.\nUse -f to force this pick.")
+            sys.exit(1)
 
-        # If --start-branch is given, create the branch (more than once per path is okay; repo ignores gracefully)
-        if args.start_branch:
-            cmd = '%s start %s %s' % (repo_bin, args.start_branch[0], project_path)
-            execute_cmd(cmd)
+    # Convert the project name to a project path
+    #   - check that the project path exists
+    if project_name in project_name_to_path:
+        project_path = project_name_to_path[project_name];
+    elif args.ignore_missing:
+        print('WARNING: Skipping %d since there is no project directory for: %s\n' % (change_number, project_name))
+        continue;
+    else:
+        sys.stderr.write('ERROR: For %d, could not determine the project path for project %s\n' % (change_number, project_name))
+        sys.exit(1)
 
-        # Print out some useful info
-        if not args.quiet:
-            print('--> Subject:       "%s"' % subject)
-            print('--> Project path:  %s' % project_path)
-            print('--> Change number: %d (Patch Set %d)' % (change_number, patch_number))
-            print('--> Author:        %s <%s> %s' % (author_name, author_email, author_date))
-            print('--> Committer:     %s <%s> %s' % (committer_name, committer_email, committer_date))
+    # If --start-branch is given, create the branch (more than once per path is okay; repo ignores gracefully)
+    if args.start_branch:
+        cmd = '%s start %s %s' % (repo_bin, args.start_branch[0], project_path)
+        execute_cmd(cmd)
 
+    # Print out some useful info
+    if not args.quiet:
+        print('--> Subject:       "%s"' % subject)
+        print('--> Project path:  %s' % project_path)
+        print('--> Change number: %d (Patch Set %d)' % (change_number, patch_number))
+        print('--> Author:        %s <%s> %s' % (author_name, author_email, author_date))
+        print('--> Committer:     %s <%s> %s' % (committer_name, committer_email, committer_date))
+
+    # Try fetching from GitHub first
+    if args.verbose:
+       print('Trying to fetch the change from GitHub')
+    cmd = 'cd %s && git fetch github %s' % (project_path, fetch_ref)
+    execute_cmd(cmd)
+    # Check if it worked
+    FETCH_HEAD = '%s/.git/FETCH_HEAD' % project_path
+    if os.stat(FETCH_HEAD).st_size == 0:
+        # That didn't work, fetch from Gerrit instead
         if args.verbose:
-            print('Trying to fetch the change %d (Patch Set %d) from Gerrit')
+          print('Fetching from GitHub didn\'t work, trying to fetch the change from Gerrit')
         cmd = 'cd %s && git fetch %s %s' % (project_path, fetch_url, fetch_ref)
         execute_cmd(cmd)
-        # Check if it worked
-        FETCH_HEAD = '%s/.git/FETCH_HEAD' % project_path
-        if os.stat(FETCH_HEAD).st_size == 0:
-            # That didn't work, print error and exit
-            sys.stderr.write('ERROR: Fetching change from Gerrit failed. Exiting...')
-            continue;
-        # Perform the cherry-pick or checkout
-        if args.checkout:
-            cmd = 'cd %s && git checkout FETCH_HEAD' % (project_path)
-        else:
-            cmd = 'cd %s && git cherry-pick FETCH_HEAD' % (project_path)
+    # Perform the cherry-pick
+    cmd = 'cd %s && git cherry-pick FETCH_HEAD' % (project_path)
+    execute_cmd(cmd)
+    if not args.quiet:
+        print('')
 
-        execute_cmd(cmd)
-        if not args.quiet:
-            print('Change #%d (Patch Set %d) %s into %s' % (change_number, patch_number, 'checked out' if args.checkout else 'cherry-picked', project_path))

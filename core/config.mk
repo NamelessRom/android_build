@@ -23,6 +23,8 @@ comma := ,
 # only has an effect on python 2.6 and above.
 export PYTHONDONTWRITEBYTECODE := 1
 
+-include $(TOPDIR)vendor/extra/extra_config.mk
+
 # Standard source directories.
 SRC_DOCS:= $(TOPDIR)docs
 # TODO: Enforce some kind of layering; only add include paths
@@ -135,6 +137,9 @@ endif
 # Define most of the global variables.  These are the ones that
 # are specific to the user's build configuration.
 include $(BUILD_SYSTEM)/envsetup.mk
+
+# Useful macros
+include $(BUILD_SYSTEM)/linaro_compilerchecks.mk
 
 # Boards may be defined under $(SRC_TARGET_DIR)/board/$(TARGET_DEVICE)
 # or under vendor/*/$(TARGET_DEVICE).  Search in both places, but
@@ -314,6 +319,7 @@ MINIGZIP := $(HOST_OUT_EXECUTABLES)/minigzip$(HOST_EXECUTABLE_SUFFIX)
 MKBOOTIMG := $(HOST_OUT_EXECUTABLES)/mkbootimg$(HOST_EXECUTABLE_SUFFIX)
 MKYAFFS2 := $(HOST_OUT_EXECUTABLES)/mkyaffs2image$(HOST_EXECUTABLE_SUFFIX)
 APICHECK := $(HOST_OUT_EXECUTABLES)/apicheck$(HOST_EXECUTABLE_SUFFIX)
+MKIMAGE :=  $(HOST_OUT_EXECUTABLES)/mkimage$(HOST_EXECUTABLE_SUFFIX)
 FS_GET_STATS := $(HOST_OUT_EXECUTABLES)/fs_get_stats$(HOST_EXECUTABLE_SUFFIX)
 MKEXT2IMG := $(HOST_OUT_EXECUTABLES)/genext2fs$(HOST_EXECUTABLE_SUFFIX)
 MAKE_EXT4FS := $(HOST_OUT_EXECUTABLES)/make_ext4fs$(HOST_EXECUTABLE_SUFFIX)
@@ -353,7 +359,7 @@ endif
 
 OLD_FLEX := prebuilts/misc/$(HOST_PREBUILT_TAG)/flex/flex-2.5.4a$(HOST_EXECUTABLE_SUFFIX)
 
-ifeq ($(HOST_OS),darwin)
+ifeq ($(BUILD_OS),darwin)
 # Mac OS' screwy version of java uses a non-standard directory layout
 # and doesn't even seem to have tools.jar.  On the other hand, javac seems
 # to be able to magically find the classes in there, wherever they are, so
@@ -490,5 +496,11 @@ RS_PREBUILT_COMPILER_RT := prebuilts/sdk/renderscript/lib/$(TARGET_ARCH)/libcomp
 
 # Rules for QCOM targets
 include $(BUILD_SYSTEM)/qcom_target.mk
+
+#ifneq ($(CUSTOM_BUILD),)
+## We need to be sure the global selinux policies are included
+## last, to avoid accidental resetting by device configs
+#$(eval include vendor/nameless/sepolicy/sepolicy.mk)
+#endif
 
 include $(BUILD_SYSTEM)/dumpvar.mk
