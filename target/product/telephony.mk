@@ -22,4 +22,3 @@ PRODUCT_PACKAGES := \
     Mms \
     rild
 
-PRODUCT_COPY_FILES := \
