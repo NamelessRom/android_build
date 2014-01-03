@@ -93,14 +93,16 @@ ifeq ($(TARGET_USE_O3),true)
                         -pipe
 else
     TARGET_thumb_CFLAGS :=  -mthumb \
-                            -Os \
+                            -Os
+ifeq ($(TARGET_OPTIMIZE_NO_O3),true)
+    TARGET_thumb_CFLAGS +=
                             -fomit-frame-pointer \
                             -fstrict-aliasing \
                             -funsafe-math-optimizations \
                             -Wstrict-aliasing=2 \
-                            -fno-strict-aliasing \
                             -funroll-loops \
                             -pipe
+endif
 endif
 
 TARGET_arm_CFLAGS +=    -Wno-unused-parameter \
