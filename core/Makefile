@@ -1437,6 +1437,12 @@ INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_OTA_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
 
+ifneq ($(DO_NOT_BUILD_RECOVERY),)
+    $(INTERNAL_OTA_PACKAGE_TARGET): recoveryex := $(DO_NOT_BUILD_RECOVERY)
+else
+    $(INTERNAL_OTA_PACKAGE_TARGET): recoveryex := true
+endif
+
 ifneq ($(CUSTOM_BUILD),)
     $(INTERNAL_OTA_PACKAGE_TARGET): backuptool := true
 else
@@ -1462,6 +1468,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	$(OTA_FROM_TARGET_SCRIPT) -v \
 	   -p $(HOST_OUT) \
 	   -k $(KEY_CERT_PAIR) \
+	   --recoveryex=$(recoveryex) \
 	   --backup=$(backuptool) \
 	   --override_device=$(override_device) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
