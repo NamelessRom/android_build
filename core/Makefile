@@ -898,7 +898,15 @@ ifdef is_tests_build
 #    $(tests_MODULES))
 endif
 
-FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEPS)
+systemimage-squisher: $(INTERNAL_SYSTEMIMAGE_FILES)
+ifneq ($(TARGET_SYSTEMIMAGE_USE_SQUISHER),false)
+	@echo -e ${CL_YLW}"Running squisher..."${CL_RST}
+	$(hide) APKCERTS=$(APKCERTS_FILE) ./vendor/nameless/tools/squisher
+endif
+
+.PHONY: systemimage-squisher
+
+FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEPS) systemimage-squisher
 # -----------------------------------------------------------------
 # installed file list
 # Depending on anything that $(BUILT_SYSTEMIMAGE) depends on.
