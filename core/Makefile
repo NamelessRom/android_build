@@ -39,6 +39,10 @@ ifneq ($(BUILD_WITH_COLORS),0)
   PRT_CPL := $(CL_BLD_GRN)
 endif
 
+# Always override jenkins builds 
+ifneq $($(BUILD_IS_JENKINS),)
+  FILE_NAME_TAG := eng.$(USER)
+else
 # Pick a reasonable string to use to identify files.
 ifneq "" "$(filter eng.%,$(BUILD_NUMBER))"
   # BUILD_NUMBER has a timestamp in it, which means that
@@ -46,6 +50,7 @@ ifneq "" "$(filter eng.%,$(BUILD_NUMBER))"
   FILE_NAME_TAG := eng.$(USER)
 else
   FILE_NAME_TAG := $(BUILD_NUMBER)
+endif
 endif
 
 is_tests_build := $(filter tests,$(MAKECMDGOALS))
