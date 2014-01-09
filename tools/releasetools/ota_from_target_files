@@ -453,6 +453,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
 
+  script.Print("******************************************");
+  script.Print("*   Nameless ROM");
   namelessv = GetBuildProp("ro.nameless.version", OPTIONS.info_dict)
   if os.getenv("CUSTOM_BUILD") is not None:
     build = ' '.join(namelessv.split('-')[3]).title()
