@@ -4,12 +4,15 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - lunch:   lunch <product_name>-<build_variant>
 - tapas:   tapas [<App1> <App2> ...] [arm|x86|mips|armv5] [eng|userdebug|user]
 - croot:   Changes directory to the top of the tree.
+- groot:   Changes directory to the root of the git project.
 - cout:    Changes directory to out.
 - m:       Makes from the top of the tree.
 - mm:      Builds all of the modules in the current directory, but not their dependencies.
 - mmm:     Builds all of the modules in the supplied directories, but not their dependencies.
 - mma:     Builds all of the modules in the current directory, and their dependencies.
 - mmma:    Builds all of the modules in the supplied directories, and their dependencies.
+- pstest:  cherry pick a patch from the Nameless gerrit instance.
+- pspush:  push commit to Nameless gerrit instance.
 - cgrep:   Greps on all local C/C++ files.
 - jgrep:   Greps on all local Java files.
 - resgrep: Greps on all local res/*.xml files.
@@ -868,6 +871,59 @@ function mmma()
   fi
 }
 
+function pstest() {
+    if [ -z "$1" ] || [ "$1" = '--help' ]
+    then
+        echo "pstest"
+        echo "to use: pstest PATCH_ID/PATCH_SET"
+        echo "example: pstest 5555/5"
+        exit 0
+    fi
+
+    gerrit=gerrit.nameless-rom.org
+    project=`git config --get remote.nameless.projectname`
+    patch="$1"
+    submission=`echo $patch | cut -f1 -d "/" | tail -c 3`
+
+    if [[ "$patch" != */* ]]
+    then
+        # User did not specify revision - pull latest
+        latest=$( git ls-remote http://$gerrit/$project | grep /changes/$submission/$patch | tail -1 )
+        latest=${latest#*/*/*/*}
+        echo "Pulling latest revision for $patch"
+        git fetch http://$gerrit/$project refs/changes/$submission/$latest && git cherry-pick FETCH_HEAD
+    else
+        git fetch http://$gerrit/$project refs/changes/$submission/$patch && git cherry-pick FETCH_HEAD
+    fi
+}
+
+function pspush_error() {
+        echo "Requires ~/.ssh/config setup with the the following info:"
+        echo "        Host gerrit"
+        echo "        HostName gerrit.nameless-rom.org"
+        echo "        User <your username>"
+        echo "        Port 29418"
+}
+
+function pspush() {
+    if [ -z "$1" ] || [ "$1" = '--help' ]; then
+        echo "pspush"
+        echo "to use:  pspush STATUS"
+        echo "where STATUS: for=regular; drafts=draft; heads=pushed to github"
+        echo "example: pspush for"
+    else
+        checkSshConfig=` grep -rH "gerrit.nameless-rom.org" ~/.ssh/config `
+        if [ "$checkSshConfig" != "" ]; then
+            gerrit=gerrit.nameless-rom.org
+            project=` git config --get remote.nameless.projectname`
+            status="$1"
+            git push gerrit:/$project HEAD:refs/$status/jb-mr2
+        else
+            pspush_error
+        fi
+    fi
+}
+
 function croot()
 {
     T=$(gettop)
@@ -902,6 +958,17 @@ function cproj()
     done
     \cd $HERE
     echo "can't find Android.mk"
+}
+
+
+function groot()
+{
+    T=$(git rev-parse --show-cdup)
+    if [ "$T" ]; then
+        cd $(git rev-parse --show-cdup)
+    else
+        echo "Already at the root of the git project."
+    fi
 }
 
 # simplified version of ps; output in the form
