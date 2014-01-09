@@ -1544,7 +1544,7 @@ function addgerrit() {
         REPO=`pwd`
         REPO=${REPO##$ANDROID_BUILD_TOP/}
         username="$1"
-        git remote add gerrit ssh://$username@gerrit.nameless-rom.org:29418/"$REPO".git
+        git remote add gerrit ssh://$username@gerrit.nameless-rom.org:29418/android_"$REPO".git
         if ( git remote -v | grep -qv aosp ) then
             echo "Nameless Gerrit $REPO remote created"
         else
