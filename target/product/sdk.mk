@@ -27,11 +27,7 @@ PRODUCT_PACKAGES := \
 	Keyguard \
 	Apollo \
 	Mms \
-	OpenWnn \
 	PrintSpooler \
-	libWnnEngDic \
-	libWnnJpnDic \
-	libwnndict \
 	TeleService \
 	PinyinIME \
 	libjni_pinyinime \
