@@ -112,6 +112,11 @@ COMMON_ANDROID_PACKAGE_SUFFIX := .apk
 
 # list of flags to turn specific warnings in to errors
 TARGET_ERROR_FLAGS := -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
+ifeq ($(TARGET_GCC_VERSION),4.9)
+	# FIXME this is a workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=59916
+	# and should be removed as soon as that bug is fixed.
+	TARGET_ERROR_FLAGS += -Wno-error=return-type
+endif
 
 # TODO: do symbol compression
 TARGET_COMPRESS_MODULE_SYMBOLS := false
