@@ -1,29 +1,31 @@
 function hmm() {
 cat <<EOF
 Invoke ". build/envsetup.sh" from your shell to add the following functions to your environment:
-- lunch:       lunch <product_name>-<build_variant>
-- tapas:       tapas [<App1> <App2> ...] [arm|x86|mips|armv5] [eng|userdebug|user]
-- croot:       Changes directory to the top of the tree.
-- groot:       Changes directory to the root of the git project.
-- cout:        Changes directory to out.
-- m:           Makes from the top of the tree.
-- mm:          Builds all of the modules in the current directory, but not their dependencies.
-- mmm:         Builds all of the modules in the supplied directories, but not their dependencies.
-- mma:         Builds all of the modules in the current directory, and their dependencies.
-- mmma:        Builds all of the modules in the supplied directories, and their dependencies.
-- pstest:      cherry pick a patch from the Nameless gerrit instance.
-- pspush:      push commit to Nameless gerrit instance.
-- addaosp:     Add git remote for the AOSP repository
-- addgerrit:   Add git remote for the Nameless gerrit repository
-- cgrep:       Greps on all local C/C++ files.
-- jgrep:       Greps on all local Java files.
-- resgrep:     Greps on all local res/*.xml files.
-- godir:       Go to the directory containing a file.
-- pushboot:    Push a file from your OUT dir to your phone and reboots it, using absolute path.
-- sdkgen:      Generate an android.jar and create a new custom SDK with NamelessROM APIs
-- mka:         Builds using SCHED_BATCH on all processors.
-- mkap:        Builds the module(s) using mka and pushes them to the device.
-- cmka:        Cleans and builds using mka.
+- lunch:        lunch <product_name>-<build_variant>
+- tapas:        tapas [<App1> <App2> ...] [arm|x86|mips|armv5] [eng|userdebug|user]
+- croot:        Changes directory to the top of the tree.
+- groot:        Changes directory to the root of the git project.
+- cout:         Changes directory to out.
+- m:            Makes from the top of the tree.
+- mm:           Builds all of the modules in the current directory, but not their dependencies.
+- mmm:          Builds all of the modules in the supplied directories, but not their dependencies.
+- mma:          Builds all of the modules in the current directory, and their dependencies.
+- mmma:         Builds all of the modules in the supplied directories, and their dependencies.
+- pstest:       cherry pick a patch from the Nameless gerrit instance.
+- pspush:       push commit to Nameless gerrit instance.
+- addaosp:      Add git remote for the AOSP repository
+- addgerrit:    Add git remote for the Nameless gerrit repository
+- cgrep:        Greps on all local C/C++ files.
+- jgrep:        Greps on all local Java files.
+- resgrep:      Greps on all local res/*.xml files.
+- godir:        Go to the directory containing a file.
+- pushboot:     Push a file from your OUT dir to your phone and reboots it, using absolute path.
+- sdkgen:       Generate an android.jar and create a new custom SDK with NamelessROM APIs
+- mka:          Builds using SCHED_BATCH on all processors.
+- mkap:         Builds the module(s) using mka and pushes them to the device.
+- cmka:         Cleans and builds using mka.
+- repolastsync: Prints date and time of last repo sync.
+- reposync:     Parallel repo sync using ionice and SCHED_BATCH.
 
 Look at the source to view more functions. The complete list is:
 EOF
@@ -1552,6 +1554,13 @@ function addgerrit() {
             exit -1
         fi
     fi
+}
+
+function repolastsync() {
+    RLSPATH="$ANDROID_BUILD_TOP/.repo/.repopickle_fetchtimes"
+    RLSLOCAL=$(date -d "$(stat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
+    RLSUTC=$(date -d "$(stat -c %z $RLSPATH)" -u +"%e %b %Y, %T %Z")
+    echo "Last repo sync: $RLSLOCAL / $RLSUTC"
 }
 
 function reposync() {
