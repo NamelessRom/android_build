@@ -483,9 +483,13 @@ def WriteFullOTAPackage(input_zip, output_zip):
     script.Print("******************************************");
     script.Print("*   Compiled: %s"%(builddate));
 
-  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
-  model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
-  script.Print("*   Device: %s (%s)"%(model, device));
+  if OPTIONS.override_prop:
+    product = GetBuildProp("ro.build.product", OPTIONS.info_dict)
+    script.Print("*   Product: %s"%(product));
+  else:
+  	device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
+    model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
+    script.Print("*   Device: %s (%s)"%(model, device));
   script.Print("******************************************");
 
   if "selinux_fc" in OPTIONS.info_dict:
