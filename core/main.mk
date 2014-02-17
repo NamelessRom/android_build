@@ -110,7 +110,7 @@ include $(BUILD_SYSTEM)/qcom_utils.mk
 # Include the extra device config
 -include vendor/extra/device.mk
 
-VERSION_CHECK_SEQUENCE_NUMBER := 3
+VERSION_CHECK_SEQUENCE_NUMBER := 4
 -include $(OUT_DIR)/versions_checked.mk
 ifneq ($(VERSION_CHECK_SEQUENCE_NUMBER),$(VERSIONS_CHECKED))
 
@@ -196,6 +196,25 @@ required_version := "1.6.x"
 java_version := $(shell java -version 2>&1 | head -n 1 | grep '^java .*[ "]1\.6[\. "$$]')
 javac_version := $(shell javac -version 2>&1 | head -n 1 | grep '[ "]1\.6[\. "$$]')
 endif # if EXPERIMENTAL_USE_JAVA7
+
+ifeq ($(required_javac_version), "1.6")
+$(info ************************************************************)
+$(info You are attempting to build with java 1.6.)
+$(info Java6 support for master builds will be dropped shortly,)
+$(info please upgrade to Java7 as soon as possible.)
+$(info $(space))
+$(info Visit http://source.android.com/source/initializing.html#installing-the-jdk for details. )
+$(info $(space))
+$(info To build using java-7:)
+$(info $(space))
+$(info $$ export EXPERIMENTAL_USE_JAVA7=true)
+$(info $$ . build/envsetup.sh)
+$(info $$ lunch <target>)
+$(info $$ make clobber)
+$(info $$ make -j8)
+$(info $(space))
+$(info ************************************************************)
+endif
 
 ifeq ($(strip $(java_version)),)
 $(info ************************************************************)
