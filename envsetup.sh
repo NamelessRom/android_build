@@ -15,6 +15,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - pspush:        push commit to Nameless gerrit instance.
 - addaosp:       Add git remote for the AOSP repository
 - addgerrit:     Add git remote for the Nameless gerrit repository
+- gerritupload:  Uploads current changes to nameless gerrit.
 - cgrep:         Greps on all local C/C++ files.
 - jgrep:         Greps on all local Java files.
 - resgrep:       Greps on all local res/*.xml files.
@@ -1565,6 +1566,23 @@ function addgerrit() {
             echo "Error creating remote"
             exit -1
         fi
+    fi
+}
+
+function gerritupload() {
+	if [ -z "$1" ] || [ "$1" = '--help' ]; then
+        echo "gerritupload - default branch is android-4.4"
+        echo "to use:  gerritupload USERNAME [BRANCH]"
+        echo "example: gerritupload JohnDoe android-4.4"
+    else
+        REPO=`pwd | sed 's/\//_/g' | sed 's/_android_//g'`
+        if [ -z "$2" ]; then
+            BRANCH="android-4.4"
+        else
+            BRANCH="$2"
+        fi
+        username="$1"
+        git push ssh://$username@gerrit.nameless-rom.org:29418/android_"$REPO".git HEAD:refs/for/"$BRANCH"
     fi
 }
 
