@@ -1556,8 +1556,7 @@ function addgerrit() {
             echo "Not a git repository."
             exit -1
         fi
-        REPO=`pwd`
-        REPO=${REPO##$ANDROID_BUILD_TOP/}
+        REPO=`pwd | sed 's/\//_/g' | sed 's/_android_//g'`
         username="$1"
         git remote add gerrit ssh://$username@gerrit.nameless-rom.org:29418/android_"$REPO".git
         if ( git remote -v | grep -qv aosp ) then
