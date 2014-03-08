@@ -680,7 +680,7 @@ function pushboot() {
 }
 
 function sdkgen() {
-        build/tools/customsdkgen.sh
+        $(gettop)/vendor/nameless/tools/customsdkgen.sh
 }
 
 function gettop
