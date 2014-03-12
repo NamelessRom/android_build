@@ -7,17 +7,24 @@
 # Outputs:
 #   COMMON_JAVAC -- Java compiler command with common arguments
 
+# Allow to use custom memory limit
+ifneq ($(CUSTOM_JAVA_MEMORY_LIMIT),)
+    MEMORY_LIMIT := $(CUSTOM_JAVA_MEMORY_LIMIT)
+else
+    MEMORY_LIMIT := 256m
+endif
+
 # Whatever compiler is on this system.
 ifeq ($(BUILD_OS), windows)
-    COMMON_JAVAC := development/host/windows/prebuilt/javawrap.exe -J-Xmx256m \
+    COMMON_JAVAC := development/host/windows/prebuilt/javawrap.exe -J-Xmx$(MEMORY_LIMIT) \
         -target 1.5 -source 1.5 -Xmaxerrs 9999999
 else
-    COMMON_JAVAC := javac -J-Xmx512M -target 1.5 -source 1.5 -Xmaxerrs 9999999
+    COMMON_JAVAC := javac -J-Xmx$(MEMORY_LIMIT) -target 1.5 -source 1.5 -Xmaxerrs 9999999
 endif
 
 # Eclipse.
 ifeq ($(CUSTOM_JAVA_COMPILER), eclipse)
-    COMMON_JAVAC := java -Xmx256m -jar prebuilt/common/ecj/ecj.jar -5 \
+    COMMON_JAVAC := java -Xmx$(MEMORY_LIMIT) -jar prebuilt/common/ecj/ecj.jar -5 \
         -maxProblems 9999999 -nowarn
     $(info CUSTOM_JAVA_COMPILER=eclipse)
 endif
