@@ -14,12 +14,19 @@ else
     MEMORY_LIMIT := 256m
 endif
 
+# Allow to use custom target source
+ifneq ($(CUSTOM_JAVA_TARGET_SOURCE),)
+    TARGET_SOURCE := $(CUSTOM_JAVA_TARGET_SOURCE)
+else
+    TARGET_SOURCE := 1.5
+endif
+
 # Whatever compiler is on this system.
 ifeq ($(BUILD_OS), windows)
     COMMON_JAVAC := development/host/windows/prebuilt/javawrap.exe -J-Xmx$(MEMORY_LIMIT) \
-        -target 1.5 -source 1.5 -Xmaxerrs 9999999
+        -target $(TARGET_SOURCE) -source $(TARGET_SOURCE) -Xmaxerrs 9999999
 else
-    COMMON_JAVAC := javac -J-Xmx$(MEMORY_LIMIT) -target 1.5 -source 1.5 -Xmaxerrs 9999999
+    COMMON_JAVAC := javac -J-Xmx$(MEMORY_LIMIT) -target $(TARGET_SOURCE) -source $(TARGET_SOURCE) -Xmaxerrs 9999999
 endif
 
 # Eclipse.
@@ -32,8 +39,8 @@ endif
 # OpenJDK.
 ifeq ($(CUSTOM_JAVA_COMPILER), openjdk)
     # We set the VM options (like -Xmx) in the javac script.
-    COMMON_JAVAC := prebuilt/common/openjdk/bin/javac -target 1.5 \
-        -source 1.5 -Xmaxerrs 9999999
+    COMMON_JAVAC := prebuilt/common/openjdk/bin/javac -target $(TARGET_SOURCE) \
+        -source $(TARGET_SOURCE) -Xmaxerrs 9999999
     $(info CUSTOM_JAVA_COMPILER=openjdk)
 endif
    
