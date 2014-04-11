@@ -498,6 +498,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.Print("Formatting /system")
   script.FormatPartition("/system")
   script.Mount("/system")
+  script.Print("Wipe cache")
+  script.FormatPartition("/cache")
   #script.UnpackPackageDir("recovery", "/system")
   script.Print("Extracting /system")
   script.UnpackPackageDir("system", "/system")
