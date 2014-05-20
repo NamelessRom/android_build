@@ -1468,6 +1468,8 @@ endif
 BOOT_ZIP_FROM_IMAGE_SCRIPT := ./build/tools/releasetools/boot_flash_from_image
 KERNEL_PATH := $(TARGET_KERNEL_SOURCE)/arch/arm/configs/$(TARGET_KERNEL_CONFIG)
 
+CUSTOM_TARGET_PACKAGE := $(PRODUCT_OUT)/nameless-$(ROM_VERSION).zip
+
 $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo "$(OTA_FROM_TARGET_SCRIPT)" > $(PRODUCT_OUT)/ota_script_path
 	@echo "$(override_device)" > $(PRODUCT_OUT)/ota_override_device
@@ -1475,13 +1477,22 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo -e ${CL_YLW}"Package OTA:"${CL_RST}" $@"
 	MKBOOTIMG=$(BOARD_CUSTOM_BOOTIMG_MK) \
 	$(OTA_FROM_TARGET_SCRIPT) -v \
-	   -p $(HOST_OUT) \
-	   -k $(KEY_CERT_PAIR) \
-	   --backup=$(backuptool) \
-	   --override_device=$(override_device) $(override_prop) \
-	   $(BUILT_TARGET_FILES_PACKAGE) $@
-
-CUSTOM_TARGET_PACKAGE := $(PRODUCT_OUT)/nameless-$(ROM_VERSION).zip
+		-p $(HOST_OUT) \
+		-k $(KEY_CERT_PAIR) \
+		--backup=$(backuptool) \
+		--override_device=$(override_device) $(override_prop) \
+		$(BUILT_TARGET_FILES_PACKAGE) $@
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(CUSTOM_TARGET_PACKAGE)
+    $(hide) $(MD5SUM) $(CUSTOM_TARGET_PACKAGE) > $(CUSTOM_TARGET_PACKAGE).md5sum
+	@echo -e ${CL_YLW}"Running squisher:"${CL_RST}
+	$(hide) ./vendor/nameless/tools/squisher $(CUSTOM_TARGET_PACKAGE)
+ifneq ($(BUILD_IS_JENKINS),)
+	@echo -e
+	@echo -e ${CL_YLW}"Creating Changelog"${CL_RST}
+	@echo -e
+	$(hide) ./vendor/nameless/tools/changelog_creator.sh $(CUSTOM_TARGET_PACKAGE).zip $OUT/
+	@echo -e
+endif
 
 .PHONY: otapackage bacon bootzip
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
@@ -1491,16 +1502,9 @@ bootzip: bootimage
 	   $(recovery_fstab) \
 	   $(OUT) \
 	   $(TARGET_DEVICE)
-
 ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
 	$(error TARGET_CUSTOM_RELEASETOOL is deprecated)
-else
-	@echo -e ${CL_YLW}"Running squisher:"${CL_RST}
-	$(hide) ./vendor/nameless/tools/squisher
 endif
-#	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(CUSTOM_TARGET_PACKAGE)
-#	$(hide) $(MD5SUM) $(CUSTOM_TARGET_PACKAGE) > $(CUSTOM_TARGET_PACKAGE).md5sum
-#	@echo -e ${PRT_CPL}"Package complete: $(CUSTOM_TARGET_PACKAGE)"${CL_RST}
 
 # -----------------------------------------------------------------
 # The update package
