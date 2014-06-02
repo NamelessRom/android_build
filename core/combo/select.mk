@@ -118,13 +118,20 @@ ifneq ($(USE_CCACHE),)
   # Check that the executable is here.
   ccache := $(strip $(wildcard $(ccache)))
   ifdef ccache
-    # prepend ccache if necessary
-    ifneq ($(ccache),$(firstword $($(combo_target)CC)))
-      $(combo_target)CC := $(ccache) $($(combo_target)CC)
-    endif
-    ifneq ($(ccache),$(firstword $($(combo_target)CXX)))
-      $(combo_target)CXX := $(ccache) $($(combo_target)CXX)
-    endif
+    CC_WRAPPER ?= $(ccache)
+    CXX_WRAPPER ?= $(ccache)
     ccache =
+  endif
+endif
+
+# The C/C++ compiler can be wrapped by setting the CC/CXX_WRAPPER vars.
+ifdef CC_WRAPPER
+  ifneq ($(CC_WRAPPER),$(firstword $($(combo_var_prefix)CC)))
+    $(combo_var_prefix)CC := $(CC_WRAPPER) $($(combo_var_prefix)CC)
+  endif
+endif
+ifdef CXX_WRAPPER
+  ifneq ($(CXX_WRAPPER),$(firstword $($(combo_var_prefix)CXX)))
+    $(combo_var_prefix)CXX := $(CXX_WRAPPER) $($(combo_var_prefix)CXX)
   endif
 endif
