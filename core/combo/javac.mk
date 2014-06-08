@@ -11,7 +11,7 @@
 ifneq ($(CUSTOM_JAVA_MEMORY_LIMIT),)
     MEMORY_LIMIT := $(CUSTOM_JAVA_MEMORY_LIMIT)
 else
-    MEMORY_LIMIT := 256m
+    MEMORY_LIMIT := 768m
 endif
 
 # Allow to use custom target source
