@@ -2,6 +2,7 @@
 
 # Copyright (C) 2013 Cybojenix <anthonydking@gmail.com>
 # Copyright (C) 2013 The OmniROM Project
+# Modifications Copyright (C) 2014 The NamelessRom Project
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -243,9 +244,19 @@ def create_dependency_manifest(dependencies):
     if len(projects) > 0:
         os.system("repo sync -f --no-clone-bundle %s" % " ".join(projects))
 
+    for deprepo in projects:
+        fetch_dependencies_via_location(deprepo)
+
 
 def fetch_dependencies(device):
     location = parse_device_from_folder(device)
+    if location is None or not os.path.isdir(location):
+        raise Exception("ERROR: could not find your device "
+                        "folder location, bailing out")
+    dependencies = parse_dependency_file(location)
+    create_dependency_manifest(dependencies)
+
+def fetch_dependencies_via_location(location):
     if location is None or not os.path.isdir(location):
         raise Exception("ERROR: could not find your device "
                         "folder location, bailing out")
