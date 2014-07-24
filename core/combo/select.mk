@@ -47,7 +47,7 @@ $(combo_target)HAVE_STRLCPY := 0
 $(combo_target)HAVE_STRLCAT := 0
 $(combo_target)HAVE_KERNEL_MODULES := 0
 
-
+ifeq ($(TARGET_NO_CUSTOM_PLACEBO_FLAGS),)
 # Global CFLAGS. Usually you don't need to change anything here
 $(combo_target)GLOBAL_CFLAGS := -O3 -DNDEBUG -funsafe-loop-optimizations -fivopts -ftree-loop-im -ftree-loop-ivcanon -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -frerun-cse-after-loop -fomit-frame-pointer -fgcse-sm -fgcse-las -fweb -ftracer -Wno-error=unused-parameter -Wno-error=unused-but-set-variable -Wno-error=maybe-uninitialized -fno-exceptions -Wno-multichar
 
@@ -57,6 +57,11 @@ $(combo_target)RELEASE_CFLAGS := -O3 -DNDEBUG -fno-strict-aliasing -funsafe-loop
 # Global LDFLAGS. Usually you don't need to change anything here
 $(combo_target)GLOBAL_LDFLAGS := -Wl,-O1 -Wl,--as-needed -Wl,--relax -Wl,--sort-common -Wl,--gc-sections
 $(combo_target)GLOBAL_ARFLAGS := crsP
+else
+$(combo_target)GLOBAL_CFLAGS := -fno-exceptions -Wno-multichar
+$(combo_target)RELEASE_CFLAGS := -O2 -g -fno-strict-aliasing
+$(combo_target)GLOBAL_LDFLAGS :=
+endif # TARGET_NO_CUSTOM_PLACEBO_FLAGS
 
 $(combo_target)EXECUTABLE_SUFFIX :=
 $(combo_target)SHLIB_SUFFIX := .so
