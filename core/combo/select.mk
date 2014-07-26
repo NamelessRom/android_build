@@ -56,12 +56,13 @@ $(combo_target)RELEASE_CFLAGS := -O3 -DNDEBUG -fno-strict-aliasing -funsafe-loop
 
 # Global LDFLAGS. Usually you don't need to change anything here
 $(combo_target)GLOBAL_LDFLAGS := -Wl,-O1 -Wl,--as-needed -Wl,--relax -Wl,--sort-common -Wl,--gc-sections
-$(combo_target)GLOBAL_ARFLAGS := crsP
 else
 $(combo_target)GLOBAL_CFLAGS := -fno-exceptions -Wno-multichar
 $(combo_target)RELEASE_CFLAGS := -O2 -g -fno-strict-aliasing
 $(combo_target)GLOBAL_LDFLAGS :=
 endif # TARGET_NO_CUSTOM_PLACEBO_FLAGS
+
+$(combo_target)GLOBAL_ARFLAGS := crsP
 
 $(combo_target)EXECUTABLE_SUFFIX :=
 $(combo_target)SHLIB_SUFFIX := .so
