@@ -43,6 +43,7 @@ default_rev = "android-4.4"
 default_team_rem = "nameless"
 # this shouldn't change unless google makes changes
 local_manifest_dir = ".repo/local_manifests"
+default_manifest = ".repo/manifest.xml"
 # change this to your name on github (or equivalent hosting)
 android_team = "NamelessRom"
 
@@ -165,6 +166,9 @@ def append_to_manifest(project):
         lm = lm.getroot()
     except IOError, ES.ParseError:
         lm = ES.Element("manifest")
+    name = project.get('name')
+    if name in open(default_manifest).read():
+        lm.append(ES.Element("remove-project", attrib={"name": name})
     lm.append(project)
     return lm
 
