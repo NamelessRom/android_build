@@ -49,13 +49,20 @@ $(combo_target)HAVE_KERNEL_MODULES := 0
 
 ifeq ($(TARGET_NO_CUSTOM_PLACEBO_FLAGS),)
 # Global CFLAGS. Usually you don't need to change anything here
-$(combo_target)GLOBAL_CFLAGS := -O3 -DNDEBUG -funsafe-loop-optimizations -fivopts -ftree-loop-im -ftree-loop-ivcanon -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -frerun-cse-after-loop -fomit-frame-pointer -fgcse-sm -fgcse-las -fweb -ftracer -Wno-error=unused-parameter -Wno-error=unused-but-set-variable -Wno-error=maybe-uninitialized -fno-exceptions -Wno-multichar
+$(combo_target)GLOBAL_CFLAGS := -O3 -DNDEBUG -funsafe-loop-optimizations -fivopts -ftree-loop-im -ftree-loop-ivcanon -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -frerun-cse-after-loop -fomit-frame-pointer -fgcse-sm -fgcse-las -fweb -ftracer -Wno-error=unused-parameter -fno-exceptions -Wno-multichar
 
 # Global Release CFLAGS. Usually you don't need to change anything here
-$(combo_target)RELEASE_CFLAGS := -O3 -DNDEBUG -fno-strict-aliasing -funsafe-loop-optimizations -fivopts -ftree-loop-im -ftree-loop-ivcanon -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -frerun-cse-after-loop -fomit-frame-pointer -fgcse-sm -fgcse-las -fweb -ftracer -Wno-error=unused-parameter -Wno-error=unused-but-set-variable -Wno-error=maybe-uninitialized
+$(combo_target)RELEASE_CFLAGS := -O3 -DNDEBUG -fno-strict-aliasing -funsafe-loop-optimizations -fivopts -ftree-loop-im -ftree-loop-ivcanon -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -frerun-cse-after-loop -fomit-frame-pointer -fgcse-sm -fgcse-las -fweb -ftracer -Wno-error=unused-parameter
 
 # Global LDFLAGS. Usually you don't need to change anything here
-$(combo_target)GLOBAL_LDFLAGS := -Wl,-O1 -Wl,--as-needed -Wl,--relax -Wl,--sort-common -Wl,--gc-sections
+$(combo_target)GLOBAL_LDFLAGS := -Wl,--as-needed -Wl,--relax -Wl,--sort-common -Wl,--gc-sections
+
+ifneq ($(HOST_OS),darwin)
+$(combo_target)GLOBAL_CFLAGS += -Wno-error=unused-but-set-variable -Wno-error=maybe-uninitialized
+$(combo_target)RELEASE_CFLAGS += -Wno-error=unused-but-set-variable -Wno-error=maybe-uninitialized
+$(combo_target)GLOBAL_LDFLAGS += -Wl,-O1
+endif
+
 else
 $(combo_target)GLOBAL_CFLAGS := -fno-exceptions -Wno-multichar
 $(combo_target)RELEASE_CFLAGS := -O2 -g -fno-strict-aliasing
