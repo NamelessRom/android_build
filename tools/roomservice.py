@@ -258,8 +258,7 @@ def fetch_dependencies(device):
 
 def fetch_dependencies_via_location(location):
     if location is None or not os.path.isdir(location):
-        raise Exception("ERROR: could not find your device "
-                        "folder location, bailing out")
+        return
     dependencies = parse_dependency_file(location)
     create_dependency_manifest(dependencies)
 
