@@ -206,12 +206,13 @@ def parse_device_from_folder(device):
     return location
 
 
-def parse_dependency_file(location):
+def parse_dependency_file(location, fromDeps):
     dep_file = "nameless.dependencies"
     dep_location = '/'.join([location, dep_file])
     if not os.path.isfile(dep_location):
         print("WARNING: %s file not found" % dep_location)
-        sys.exit()
+        if not fromDeps:
+            sys.exit()
     try:
         with open(dep_location, 'r') as f:
             dependencies = json.loads(f.read())
@@ -253,14 +254,14 @@ def fetch_dependencies(device):
     if location is None or not os.path.isdir(location):
         raise Exception("ERROR: could not find your device "
                         "folder location, bailing out")
-    dependencies = parse_dependency_file(location)
+    dependencies = parse_dependency_file(location, False)
     create_dependency_manifest(dependencies)
 
 def fetch_dependencies_via_location(location):
     if location is None or not os.path.isdir(location):
-        raise Exception("ERROR: could not find your device "
+        return Exception("ERROR: could not find your device "
                         "folder location, bailing out")
-    dependencies = parse_dependency_file(location)
+    dependencies = parse_dependency_file(location, True)
     create_dependency_manifest(dependencies)
 
 
