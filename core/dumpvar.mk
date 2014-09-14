@@ -108,6 +108,7 @@ $(info   TARGET_CPU_VARIANT=$(TARGET_CPU_VARIANT))
 ifneq ($(strip $(TARGET_ARM_EABI_VERSION)),)
 $(info   TARGET_ARM_EABI_VERSION=$(TARGET_ARM_EABI_VERSION))
 endif
+$(info   PRODUCT_RUNTIMES=$(PRODUCT_RUNTIMES))
 $(info --------------------------------------------)
 $(info   HOST_ARCH=$(HOST_ARCH))
 $(info   HOST_OS=$(HOST_OS))
