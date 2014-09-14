@@ -259,7 +259,6 @@ $(call clear-var-list, $(_product_var_list))
 # Set PRODUCT_RUNTIMES, allowing buildspec to override using OVERRIDE_RUNTIMES
 product_runtimes := $(sort $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_RUNTIMES))
 ifneq ($(OVERRIDE_RUNTIMES),)
-  $(info Overriding PRODUCT_RUNTIMES=$(product_runtimes) with $(OVERRIDE_RUNTIMES))
   product_runtimes := $(OVERRIDE_RUNTIMES)
 endif
 $(foreach runtime, $(product_runtimes), $(eval include $(SRC_TARGET_DIR)/product/$(runtime).mk))
