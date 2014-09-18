@@ -111,7 +111,11 @@ endif
 ifeq ($(DEFAULT_SYSTEM_DEV_CERTIFICATE),build/target/product/security/testkey)
 BUILD_KEYS := test-keys
 else
+ifeq ($(BUILD_REMOVE_BUILD_KEYS),true)
+BUILD_KEYS :=
+else
 BUILD_KEYS := dev-keys
+endif
 endif
 BUILD_VERSION_TAGS += $(BUILD_KEYS)
 BUILD_VERSION_TAGS := $(subst $(space),$(comma),$(sort $(BUILD_VERSION_TAGS)))
