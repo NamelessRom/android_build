@@ -561,6 +561,17 @@ function lunch()
 
     local product=$(echo -n $selection | sed -e "s/-.*$//")
     check_product $product
+    if [ -z "$3" ] ; then
+        T=$(gettop)
+        pushd $T > /dev/null
+        if [ ${VENDOR_HACK} ]; then
+            build/tools/roomservice.py $product true true
+            build/tools/vendor_hack.sh $product 2> /dev/null
+        else
+            build/tools/roomservice.py $product true
+        fi
+        popd > /dev/null
+    fi
     if [ $? -ne 0 ]
     then
         # if we can't find the product, try to grab it from our github
