@@ -101,10 +101,11 @@ def parse_device_directory(device_url,device):
 
 
 # Thank you RaYmAn
-def iterate_manifests():
+def iterate_manifests(check_all):
     files = []
-    for file in os.listdir(local_manifest_dir):
-        files.append(os.path.join(local_manifest_dir, file))
+    if check_all:
+        for file in os.listdir(local_manifest_dir):
+            files.append(os.path.join(local_manifest_dir, file))
     files.append('.repo/manifest.xml')
     for file in files:
         try:
@@ -118,11 +119,17 @@ def iterate_manifests():
 
 
 def check_project_exists(url):
-    for project in iterate_manifests():
+    for project in iterate_manifests(True):
         if project.get("name") == url:
             return True
     return False
 
+def check_dup_path(directory):
+    for project in iterate_manifests(False):
+        if project.get("path") == directory:
+            print ("Duplicate path %s found! Removing" % directory)
+            return project.get("name")
+    return None
 
 # Use the indent function from http://stackoverflow.com/a/4590052
 def indent(elem, level=0):
@@ -149,6 +156,12 @@ def create_manifest_project(url, directory,
     if project_exists:
         return None
 
+    dup_path = check_dup_path(directory)
+    if not dup_path is None:
+            write_to_manifest(
+                append_to_manifest(
+                    create_manifest_remove(dup_path)))
+	
     project = ES.Element("project",
                          attrib={
                              "path": directory,
@@ -158,6 +171,9 @@ def create_manifest_project(url, directory,
                          })
     return project
 
+def create_manifest_remove(url):
+    remove = ES.Element("remove-project", attrib={"name": url})
+    return remove
 
 def append_to_manifest(project):
     try:
@@ -182,7 +198,7 @@ def write_to_manifest(manifest):
 
 
 def parse_device_from_manifest(device):
-    for project in iterate_manifests():
+    for project in iterate_manifests(True):
         name = project.get('name')
         if name.startswith("android_device_") and name.endswith(device):
             return project.get('path')
@@ -207,7 +223,10 @@ def parse_device_from_folder(device):
 
 
 def parse_dependency_file(location, fromDeps):
-    dep_file = "nameless.dependencies"
+    if deps_only:
+        dep_file = device + ".dependencies"
+    else:
+        dep_file = "nameless.dependencies"
     dep_location = '/'.join([location, dep_file])
     if not os.path.isfile(dep_location):
         print("WARNING: %s file not found" % dep_location)
@@ -252,7 +271,10 @@ def create_dependency_manifest(dependencies):
 
 
 def fetch_dependencies(device):
-    location = parse_device_from_folder(device)
+    if deps_only:
+        location = "vendor/nameless/vendorhack/dependencies/"
+    else:
+        location = parse_device_from_folder(device)
     if location is None or not os.path.isdir(location):
         raise Exception("ERROR: could not find your device "
                         "folder location, bailing out")
