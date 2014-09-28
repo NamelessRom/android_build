@@ -573,6 +573,7 @@ function lunch()
         T=$(gettop)
         pushd $T > /dev/null
         build/tools/roomservice.py $product true
+        build/tools/vendor_hack.sh $product 2> /dev/null
         popd > /dev/null
     fi
     if [ $? -ne 0 ]
