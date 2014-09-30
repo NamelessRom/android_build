@@ -333,7 +333,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         deps_only = sys.argv[2]
     else:
-        deps_only = False
+        deps_only = True
 
     vendor_hack = False
 
