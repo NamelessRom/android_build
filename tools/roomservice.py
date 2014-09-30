@@ -246,10 +246,15 @@ def parse_dependency_file(location, fromDeps, firstrun):
 def create_dependency_manifest(dependencies, firstrun):
     projects = []
     for dependency in dependencies:
+        vendorhack = dependency.get("vendorhack")
         repository = dependency.get("repository")
         target_path = dependency.get("target_path")
         revision = dependency.get("revision", default_rev)
         remote = dependency.get("remote", default_rem)
+
+        if vendorhack:
+          vendor_hack = True
+
         if deps_only and vendor_hack and not firstrun:
           android_team = "CyanogenMod"
           revision = "cm-11.0"
@@ -330,10 +335,7 @@ if __name__ == '__main__':
     else:
         deps_only = False
 
-    if len(sys.argv) > 3:
-        vendor_hack = sys.argv[3]
-    else:
-        vendor_hack = False
+    vendor_hack = False
 
     if not deps_only:
         fetch_device(device)
