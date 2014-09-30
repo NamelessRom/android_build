@@ -254,7 +254,6 @@ def create_dependency_manifest(dependencies, firstrun):
         if vendorhack:
           global vendor_hack
           vendor_hack = "True"
-          os.putenv('VENDOR_HACK', "true")
 
         if deps_only and vendor_hack and not firstrun:
           android_team = "CyanogenMod"
@@ -279,6 +278,8 @@ def create_dependency_manifest(dependencies, firstrun):
     for deprepo in projects:
         fetch_dependencies_via_location(deprepo)
 
+    if deps_only and vendor_hack and not firstrun:
+        os.system('./build/tools/vendor_hack.sh ' + device +  ' 2> /dev/null')
 
 def fetch_dependencies(device):
     location = "vendor/nameless/vendorhack/dependencies/"
