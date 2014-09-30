@@ -567,6 +567,9 @@ function lunch()
         T=$(gettop)
         pushd $T > /dev/null
         build/tools/roomservice.py $product
+        if [ ${VENDOR_HACK} ]; then
+            build/tools/vendor_hack.sh $product 2> /dev/null
+        fi
         popd > /dev/null
         check_product $product
     else

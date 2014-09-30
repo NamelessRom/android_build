@@ -254,6 +254,7 @@ def create_dependency_manifest(dependencies, firstrun):
         if vendorhack:
           global vendor_hack
           vendor_hack = "True"
+          os.putenv('VENDOR_HACK', "true")
 
         if deps_only and vendor_hack and not firstrun:
           android_team = "CyanogenMod"
@@ -333,7 +334,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         deps_only = sys.argv[2]
     else:
-        deps_only = False
+        deps_only = True
 
     vendor_hack = False
 
