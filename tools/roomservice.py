@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # Copyright (C) 2013 Cybojenix <anthonydking@gmail.com>
 # Copyright (C) 2013 The OmniROM Project
 # Modifications Copyright (C) 2014 The NamelessRom Project
@@ -253,7 +252,8 @@ def create_dependency_manifest(dependencies, firstrun):
         remote = dependency.get("remote", default_rem)
 
         if vendorhack:
-          vendor_hack = True
+          global vendor_hack
+          vendor_hack = "True"
 
         if deps_only and vendor_hack and not firstrun:
           android_team = "CyanogenMod"
