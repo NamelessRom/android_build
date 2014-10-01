@@ -278,9 +278,6 @@ def create_dependency_manifest(dependencies, firstrun):
     for deprepo in projects:
         fetch_dependencies_via_location(deprepo)
 
-    if deps_only and vendor_hack and not firstrun:
-        os.system('./build/tools/vendor_hack.sh ' + device +  ' 2> /dev/null')
-
 def fetch_dependencies(device):
     location = "vendor/nameless/vendorhack/dependencies/"
     if location is None or not os.path.isdir(location):
@@ -342,3 +339,7 @@ if __name__ == '__main__':
     if not deps_only:
         fetch_device(device)
     fetch_dependencies(device)
+
+    if deps_only and vendor_hack:
+        os.system('./build/tools/vendor_hack.sh ' + device +  ' 2> /dev/null')
+
