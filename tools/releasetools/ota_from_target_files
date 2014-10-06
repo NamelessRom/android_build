@@ -579,6 +579,14 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   script.Print("Flashing boot.img")
   script.WriteRawImage("/boot", "boot.img")
 
+  script.Print("Running post installation...")
+  script.UnpackPackageDir("system/install/f2fs", "/tmp/post_installation_extras")
+  script.SetPermissions("/tmp/post_installation_extras/trigger.sh", 0, 0, 0777, None, None)
+  script.AppendExtra("""run_program("/tmp/post_installation_extras/trigger.sh");
+delete_recursive("/tmp/post_installation_extras");
+delete_recursive("system/install");
+""")
+
   script.ShowProgress(0.1, 0)
   script.Print("Enjoy Nameless ROM!");
   device_specific.FullOTA_InstallEnd()
