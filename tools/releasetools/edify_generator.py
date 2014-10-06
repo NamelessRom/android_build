@@ -177,23 +177,11 @@ class EdifyGenerator(object):
 
   def Mount(self, mount_point):
     """Mount the partition with the given mount_point."""
-    fstab = self.info.get("fstab", None)
-    if fstab:
-      p = fstab[mount_point]
-      if p.fs_type == 'f2fs':
-        self.script.append('run_program("/sbin/mount", "-t", "auto", "%s", "%s");' %
-                           (p.device, p.mount_point))
-      else:
-        self.script.append('mount("%s", "%s", "%s", "%s");' %
-                           (p.fs_type, common.PARTITION_TYPES[p.fs_type],
-                            p.device, p.mount_point))
-      self.mounts.add(p.mount_point)
+    self.script.append('run_program("/sbin/busybox", "mount", "%s");' % (mount_point,))
 
   def Unmount(self, mount_point):
     """Unmount the partiiton with the given mount_point."""
-    if mount_point in self.mounts:
-      self.mounts.remove(mount_point)
-      self.script.append('unmount("%s");' % (mount_point,))
+    self.script.append('unmount("%s");' % (mount_point,))
 
   def UnpackPackageDir(self, src, dst):
     """Unpack a given directory from the OTA package into the given
@@ -214,18 +202,12 @@ class EdifyGenerator(object):
   def FormatPartition(self, partition):
     """Format the given partition, specified by its mount point (eg,
     "/system")."""
-
-    reserve_size = 0
-    fstab = self.info.get("fstab", None)
-    if fstab:
-      p = fstab[partition]
-      if p.fs_type == 'f2fs':
-        self.script.append('run_program("/sbin/mkfs.f2fs", "%s");' %
-                           (p.device))
-      else:
-        self.script.append('format("%s", "%s", "%s", "%s", "%s");' %
-                           (p.fs_type, common.PARTITION_TYPES[p.fs_type],
-                            p.device, p.length, p.mount_point))
+    self.script.append('package_extract_file("system/install/f2fs/format.sh", "/tmp/format.sh");')
+    if not self.info.get("use_set_metadata", False):
+      self.script.append('set_perm(0, 0, 0777, "/tmp/format.sh");')
+    else:
+      self.script.append('set_metadata("/tmp/format.sh", "uid", 0, "gid", 0, "mode", 0777);')
+    self.script.append('run_program("/tmp/format.sh %s");' % (partition,))
 
   def DeleteFiles(self, file_list):
     """Delete all files in file_list."""
@@ -285,6 +267,16 @@ class EdifyGenerator(object):
              '       delete("/tmp/%(device)s.img"));') % args)
       else:
         raise ValueError("don't know how to write \"%s\" partitions" % (p.fs_type,))
+
+  def SetPermissionsExternal(self, fn, uid, gid, mode):
+    """Set file ownership and permissions."""
+    if not self.info.get("use_set_metadata", False):
+      self.script.append('set_perm(%d, %d, 0%o, "%s");' % (uid, gid, mode, fn))
+    else:
+      cmd = 'set_metadata("%s", "uid", %d, "gid", %d, "mode", 0%o' \
+          % (fn, uid, gid, mode)
+      cmd += ');'
+      self.script.append(cmd)
 
   def SetPermissions(self, fn, uid, gid, mode, selabel, capabilities):
     """Set file ownership and permissions."""
