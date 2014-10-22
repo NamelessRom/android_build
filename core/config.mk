@@ -374,8 +374,6 @@ OLD_FLEX := prebuilts/misc/$(HOST_PREBUILT_TAG)/flex/flex-2.5.4a$(HOST_EXECUTABL
 
 ifeq ($(HOST_OS),darwin)
 ifeq ($(LEGACY_USE_JAVA6),)
-HOST_JDK_TOOLS_JAR:= $(shell $(BUILD_SYSTEM)/find-jdk-tools-jar.sh)
-else
 # Deliberately set to blank for Java 6 installations on MacOS. These
 # versions allegedly use a non-standard directory structure.
 HOST_JDK_TOOLS_JAR :=
@@ -384,6 +382,7 @@ HOST_JDK_TOOLS_JAR:= $(shell $(BUILD_SYSTEM)/find-jdk-tools-jar.sh)
 ifeq ($(wildcard $(HOST_JDK_TOOLS_JAR)),)
 $(error Error: could not find jdk tools.jar, please install JDK6, \
     which you can download from java.sun.com)
+endif
 endif
 endif
 
