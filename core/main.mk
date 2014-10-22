@@ -202,8 +202,9 @@ $(info This build requires OpenJDK, but you are using:)
 $(info $(java_version_str).)
 $(info Please follow the machine setup instructions at)
 $(info $(space)$(space)$(space)$(space)https://source.android.com/source/download.html)
+$(info $(space))
+$(info Continue at your own peril!)
 $(info ************************************************************)
-$(error stop)
 endif # java version is not OpenJdk
 else # if requires_openjdk
 ifneq ($(shell echo '$(java_version_str)' | grep -i openjdk),)
@@ -216,7 +217,6 @@ $(info $(space)$(space)$(space)$(space)https://source.android.com/source/downloa
 $(info $(space))
 $(info Continue at your own peril!)
 $(info ************************************************************)
-$(error stop)
 endif # java version is not Sun Oracle JDK
 endif # if requires_openjdk
 
