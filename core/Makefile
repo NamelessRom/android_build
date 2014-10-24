@@ -1485,6 +1485,10 @@ KERNEL_PATH := $(TARGET_KERNEL_SOURCE)/arch/arm/configs/$(TARGET_KERNEL_CONFIG)
 
 CUSTOM_TARGET_PACKAGE := $(PRODUCT_OUT)/nameless-$(ROM_VERSION).zip
 
+ifeq ($(CUSTOM_EXTRA_SCRIPT),)
+    CUSTOM_EXTRA_SCRIPT := vendor/nameless/extra_script.recovery
+endif
+
 $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo "$(OTA_FROM_TARGET_SCRIPT)" > $(PRODUCT_OUT)/ota_script_path
 	@echo "$(override_device)" > $(PRODUCT_OUT)/ota_override_device
@@ -1496,6 +1500,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 		-k $(KEY_CERT_PAIR) \
 		--backup=$(backuptool) \
 		--override_device=$(override_device) $(override_prop) \
+		--extra_script=$(CUSTOM_EXTRA_SCRIPT) \
 		$(BUILT_TARGET_FILES_PACKAGE) $@
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(CUSTOM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(CUSTOM_TARGET_PACKAGE) > $(CUSTOM_TARGET_PACKAGE).md5sum
