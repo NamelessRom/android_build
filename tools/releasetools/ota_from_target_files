@@ -575,6 +575,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
     script.ShowProgress(0.2, 10)
     script.RunBackup("restore")
 
+  script.ApplySuperSu()
   script.ShowProgress(0.2, 10)
   script.Print("Flashing boot.img")
   script.WriteRawImage("/boot", "boot.img")
