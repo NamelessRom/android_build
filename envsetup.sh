@@ -34,6 +34,8 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - repopick: Utility to fetch changes from Gerrit.
 - installboot: Installs a boot.img to the connected device.
 - installrecovery: Installs a recovery.img to the connected device.
+- addgerrit:     Add git remote for the Nameless gerrit repository
+- gerritupload:  Uploads current changes to nameless gerrit.
 
 Environemnt options:
 - SANITIZE_HOST: Set to 'true' to use ASAN for all host modules. Note that
@@ -2414,6 +2416,46 @@ function mk_timer()
 function make()
 {
     mk_timer $(get_make_command) "$@"
+}
+
+function addgerrit() {
+    GERRIT_REMOTE=$(git config --get remote.github.projectname)
+    if [ -z "$GERRIT_REMOTE" ]
+    then
+        echo "Unable to set up the git remote, are you under a git repo?"
+        return 0
+    fi
+
+    git remote rm gerrit 2> /dev/null
+
+    USERNAME=$(git config --get review.nameless-rom.org.username)
+    if [ -z "$USERNAME" ]
+    then
+        echo "Username not set! You may want to define a username using"
+        echo "    git config --global review.nameless-rom.org.username USERNAME"
+        echo ""
+        return 0
+    else
+        git remote add gerrit ssh://$USERNAME@review.nameless-rom.org:29518/$GERRIT_REMOTE
+    fi
+    echo "You can now push to the 'gerrit' remote."
+}
+
+function gerritupload() {
+    if [ "$1" = '--help' ]; then
+        echo "gerritupload [BRANCH]- branch is optional, default branch is n-3.0"
+        echo "uploads the current HEAD to gerrit"
+        echo "NOTE: remote 'gerrit' must be set"
+        echo ""
+        echo "example: gerritupload [n-3.0]"
+    else
+        if [ -z "$1" ]; then
+            BRANCH="n-3.0"
+        else
+            BRANCH="$1"
+        fi
+        git push gerrit HEAD:refs/for/"$BRANCH"
+    fi
 }
 
 if [ "x$SHELL" != "x/bin/bash" ]; then
