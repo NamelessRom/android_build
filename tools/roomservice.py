@@ -106,10 +106,11 @@ def indent(elem, level=0):
             elem.tail = i
 
 def get_default_revision():
-    m = ElementTree.parse(".repo/manifest.xml")
-    d = m.findall('default')[0]
-    r = d.get('revision')
-    return r.replace('refs/heads/', '').replace('refs/tags/', '')
+    #m = ElementTree.parse(".repo/manifest.xml")
+    #d = m.findall('default')[0]
+    #r = d.get('revision')
+    #return r.replace('refs/heads/', '').replace('refs/tags/', '')
+    return 'n-2.0'
 
 def get_from_manifest(devicename):
     try:
