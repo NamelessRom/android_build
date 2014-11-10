@@ -19,6 +19,8 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - resgrep: Greps on all local res/*.xml files.
 - sgrep:   Greps on all local source files.
 - godir:   Go to the directory containing a file.
+- addgerrit:     Add git remote for the Nameless gerrit repository
+- gerritupload:  Uploads current changes to nameless gerrit.
 - cmremote: Add git remote for CM Gerrit Review
 - cmgerrit: A Git wrapper that fetches/pushes patch from/to CM Gerrit Review
 - cmrebase: Rebase a Gerrit change and push it again
@@ -2268,6 +2270,57 @@ function make()
     return $ret
 }
 
+function addgerrit() {
+    if [ -z "$1" ] || [ "$1" = '--help' ]; then
+        echo "addgerrit"
+        echo "to use:  addgerrit USERNAME [PROJECT] [PREFIX]"
+        echo "example: addgerrit JohnDoe [NamelessRom] [android_]"
+    else
+        git remote rm gerrit >/dev/null 2>&1
+        if [ ! -d .git ]; then
+            echo "Not a git repository."
+            exit -1
+        fi
+        REPO=`pwd`
+        REPO=${REPO##$ANDROID_BUILD_TOP/}
+        REPO=`echo ${REPO} | sed 's/\//_/g'`
+        username="$1"
+        if [ -z "$2" ]; then
+            PROJECT="NamelessRom"
+        else
+            PROJECT="$2"
+        fi
+        if [ -z "$3" ]; then
+            PREFIX="android_"
+        else
+            PREFIX="$3"
+        fi
+        git remote add gerrit ssh://$username@gerrit.nameless-rom.org:29418/${PROJECT}/"${PREFIX}${REPO}".git
+        if ( git remote -v | grep -qv aosp ) then
+            echo "created remote gerrit: ${PROJECT}/${PREFIX}${REPO}"
+        else
+            echo "Error creating remote"
+            exit -1
+        fi
+    fi
+}
+
+function gerritupload() {
+    if [ "$1" = '--help' ]; then
+        echo "gerritupload [BRANCH]- branch is optional, default branch is android-4.4"
+        echo "uploads the current HEAD to gerrit"
+        echo "NOTE: remote 'gerrit' must be set"
+        echo ""
+        echo "example: gerritupload [android-4.4]"
+    else
+        if [ -z "$1" ]; then
+            BRANCH="n-2.0"
+        else
+            BRANCH="$1"
+        fi
+        git push gerrit HEAD:refs/for/"$BRANCH"
+    fi
+}
 
 
 if [ "x$SHELL" != "x/bin/bash" ]; then
