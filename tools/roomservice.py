@@ -46,31 +46,10 @@ local_manifest_dir = ".repo/local_manifests"
 # change this to your name on github (or equivalent hosting)
 android_team = "NamelessRom"
 
-
 def check_repo_exists(git_data):
     if not int(git_data.get('total_count', 0)):
         raise Exception("{} not found in {} Github, exiting "
                         "roomservice".format(device, android_team))
-
-
-# Note that this can only be done 5 times per minute
-def search_github_for_device(device):
-    git_device = '+'.join(re.findall('[a-z]+|[\d]+',  device))
-    git_search_url = "https://api.github.com/search/repositories" \
-                     "?q=%40{}+android_device+{}+fork:true".format(android_team, git_device)
-    git_req = urllib.request.Request(git_search_url)
-    # this api is a preview at the moment. accept the custom media type
-    git_req.add_header('Accept', 'application/vnd.github.preview')
-    try:
-        response = urllib.request.urlopen(git_req)
-    except urllib.request.HTTPError:
-        raise Exception("There was an issue connecting to github."
-                        " Please try again in a minute")
-    git_data = json.load(response)
-    check_repo_exists(git_data)
-    print("found the {} device repo".format(device))
-    return git_data
-
 
 def get_device_url(git_data):
     device_url = ""
@@ -100,7 +79,6 @@ def parse_device_directory(device_url,device):
     repo_dir = repo_dir + device
     return "device{}".format(repo_dir)
 
-
 # Thank you RaYmAn
 def iterate_manifests(check_all):
     files = []
@@ -117,7 +95,6 @@ def iterate_manifests(check_all):
         else:
             for project in man.findall("project"):
                 yield project
-
 
 def check_project_exists(url):
     for project in iterate_manifests(True):
@@ -147,7 +124,6 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-
 
 def create_manifest_project(url, directory,
                             remote=default_rem,
@@ -185,7 +161,6 @@ def append_to_manifest(project):
     lm.append(project)
     return lm
 
-
 def write_to_manifest(manifest):
     indent(manifest)
     raw_xml = ES.tostring(manifest).decode()
@@ -196,7 +171,6 @@ def write_to_manifest(manifest):
     with open('/'.join([local_manifest_dir, "roomservice.xml"]), 'w') as f:
         f.write(raw_xml)
     print("wrote the new roomservice manifest")
-
 
 def parse_device_from_manifest(device):
     for project in iterate_manifests(True):
@@ -221,7 +195,6 @@ def parse_device_from_folder(device):
         location = parse_device_from_manifest(device)
     return location
 
-
 def parse_dependency_file(location, fromDeps, firstrun):
     if firstrun and deps_only:
         dep_file = device + ".dependencies"
@@ -242,7 +215,6 @@ def parse_dependency_file(location, fromDeps, firstrun):
     except ValueError:
         raise Exception("ERROR: malformed dependency file")
     return dependencies
-
 
 def create_dependency_manifest(dependencies, firstrun):
     projects = []
@@ -296,30 +268,11 @@ def fetch_dependencies_via_location(location):
     if dependencies is not None:
         create_dependency_manifest(dependencies, False)
 
-
 def check_device_exists(device):
     location = parse_device_from_folder(device)
     if location is None:
         return False
     return os.path.isdir(location)
-
-
-def fetch_device(device):
-    if check_device_exists(device):
-        print("WARNING: Trying to fetch a device that's already there")
-        return
-    git_data = search_github_for_device(device)
-    device_url = get_device_url(git_data)
-    device_dir = parse_device_directory(device_url,device)
-    project = create_manifest_project(device_url,
-                                      device_dir,
-                                      remote=default_team_rem)
-    if not project is None:
-        manifest = append_to_manifest(project)
-        write_to_manifest(manifest)
-        print("syncing the device config")
-        os.system('repo sync -f --no-clone-bundle %s' % device_dir)
-
 
 if __name__ == '__main__':
     if not os.path.isdir(local_manifest_dir):
@@ -338,10 +291,11 @@ if __name__ == '__main__':
 
     vendor_hack = False
 
-    if not deps_only:
-        fetch_device(device)
-    fetch_dependencies(device)
+    if not os.path.isfile("vendor/nameless/vendorhack/dependencies/" + device + ".dependencies"):
+        os.system('./build/tools/cmroomservice.py ' + device +  ' 2> /dev/null')
+        vendor_hack = True
+    else:
+	fetch_dependencies(device)
 
-    if deps_only and vendor_hack:
+    if vendor_hack:
         os.system('./build/tools/vendor_hack.sh ' + device +  ' 2> /dev/null')
-
