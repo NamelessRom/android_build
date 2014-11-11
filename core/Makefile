@@ -1627,9 +1627,6 @@ endif
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
-ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
-	$(error TARGET_CUSTOM_RELEASETOOL is deprecated)
-endif
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(NAMELESS_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(NAMELESS_TARGET_PACKAGE) > $(NAMELESS_TARGET_PACKAGE).md5sum
 	@echo -e ${CL_CYN}"Package Complete: $(NAMELESS_TARGET_PACKAGE)"${CL_RST}
