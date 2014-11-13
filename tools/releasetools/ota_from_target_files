@@ -689,7 +689,13 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   device_specific.FullOTA_InstallEnd()
 
   if OPTIONS.extra_script is not None:
+    if block_based:
+      common.ZipWriteStr(output_zip, "system/bin/supersuflasher.sh",
+                 ""+input_zip.read("SYSTEM/bin/supersuflasher.sh"))
+      script.Mount("/system")
     script.AppendExtra(OPTIONS.extra_script)
+    if block_based:
+      script.Unmount("/system")
 
   script.UnmountAll()
 
