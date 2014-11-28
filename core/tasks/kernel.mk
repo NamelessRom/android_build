@@ -114,6 +114,8 @@ KERNEL_MODULES_OUT := $(TARGET_OUT)/lib/modules
 
 ifeq ($(KERNEL_TOOLCHAIN),)
 KERNEL_TOOLCHAIN := $(ARM_EABI_TOOLCHAIN)
+else
+KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/$(KERNEL_TOOLCHAIN)
 endif
 ifeq ($(KERNEL_TOOLCHAIN_PREFIX),)
 KERNEL_TOOLCHAIN_PREFIX := arm-eabi-
@@ -143,7 +145,7 @@ ifeq ($(TARGET_ARCH),arm)
       ccache := $(strip $(wildcard $(ccache)))
     endif
     ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(KERNEL_TOOLCHAIN)/$(KERNEL_TOOLCHAIN_PREFIX)"
-    ccache = 
+    ccache =
 endif
 
 ifeq ($(HOST_OS),darwin)
