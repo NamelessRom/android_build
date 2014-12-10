@@ -111,8 +111,8 @@ endif
 ifeq ($(DEFAULT_SYSTEM_DEV_CERTIFICATE),build/target/product/security/testkey)
 BUILD_KEYS := test-keys
 else
-ifeq ($(BUILD_REMOVE_BUILD_KEYS),true)
-BUILD_KEYS :=
+ifeq ($(BUILD_USES_RELEASE_KEYS),true)
+BUILD_KEYS := release-keys
 else
 BUILD_KEYS := dev-keys
 endif
