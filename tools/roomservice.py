@@ -253,7 +253,7 @@ def create_dependency_manifest(dependencies, firstrun):
         fetch_dependencies_via_location(deprepo)
 
 def fetch_dependencies(device):
-    location = "vendor/nameless/vendorhack/dependencies/"
+    location = "vendor/nameless/dependencies/"
     if location is None or not os.path.isdir(location):
         raise Exception("ERROR: could not find your device "
                         "folder location, bailing out")
@@ -291,7 +291,7 @@ if __name__ == '__main__':
 
     vendor_hack = False
 
-    if not os.path.isfile("vendor/nameless/vendorhack/dependencies/" + device + ".dependencies"):
+    if not os.path.isfile("vendor/nameless/dependencies/" + device + ".dependencies"):
         os.system('./build/tools/cmroomservice.py ' + device +  ' 2> /dev/null')
         vendor_hack = True
     else:
