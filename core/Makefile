@@ -1672,13 +1672,6 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	   --override_device=$(override_device) $(override_prop) \
 	   $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
-ifneq ($(BUILD_IS_JENKINS),)
-	   @echo -e
-	   @echo -e ${CL_YLW}"Creating Changelog"${CL_RST}
-	   @echo -e
-	   $(hide) ./vendor/nameless/tools/changelog_creator.sh $(NAMELESS_TARGET_PACKAGE)
-	   @echo -e
-endif
 
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
@@ -1686,6 +1679,13 @@ bacon: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(NAMELESS_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(NAMELESS_TARGET_PACKAGE) > $(NAMELESS_TARGET_PACKAGE).md5sum
 	@echo -e ${CL_CYN}"Package Complete: $(NAMELESS_TARGET_PACKAGE)"${CL_RST}
+ifneq ($(BUILD_IS_JENKINS),)
+	@echo -e
+	@echo -e ${CL_YLW}"Creating Changelog"${CL_RST}
+	@echo -e
+	$(hide) ./vendor/nameless/tools/changelog_creator.sh $(NAMELESS_TARGET_PACKAGE)
+	@echo -e
+endif
 
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true
