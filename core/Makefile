@@ -1759,6 +1759,12 @@ ifdef BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE
 	$(hide) $(call package_files-copy-root, \
 		$(TARGET_OUT_VENDOR),$(zip_root)/VENDOR)
 endif
+ifdef TARGET_INCLUDES_FIRMWARE
+	@# Components of the firmware
+	$(hide) mkdir -p $(zip_root)/RADIO
+	$(hide) $(call package_files-copy-root, \
+		$(PRODUCT_OUT)/radio,$(zip_root)/RADIO)
+endif
 	@# Extra contents of the OTA package
 	$(hide) mkdir -p $(zip_root)/OTA/bin
 	$(hide) $(ACP) $(INSTALLED_ANDROID_INFO_TXT_TARGET) $(zip_root)/OTA/
