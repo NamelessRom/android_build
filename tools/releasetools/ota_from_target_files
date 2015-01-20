@@ -602,22 +602,23 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.Unmount("/data")
   script.AppendExtra("endif;")
 
-  script.Print("******************************************");
-  script.Print("*   Nameless Rom");
-  namelessv = GetBuildProp("ro.nameless.version", OPTIONS.info_dict)
-  builddate = GetBuildProp("ro.build.date", OPTIONS.info_dict)
-  releasetype = GetBuildProp("ro.nameless.releasetype", OPTIONS.info_dict)
-  script.Print("*   Release: %s"%(releasetype));
-  script.Print("*   Build date: %s"%(builddate));
+  builddate = GetBuildProp("ro.build.date", OPTIONS.info_dict);
+  releasetype = GetBuildProp("ro.nameless.releasetype", OPTIONS.info_dict);
 
   if OPTIONS.override_prop:
-    product = GetBuildProp("ro.build.product", OPTIONS.info_dict)
-    script.Print("*   Product: %s"%(product));
+    product = GetBuildProp("ro.build.product", OPTIONS.info_dict);
   else:
-    device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
-    model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
-    script.Print("*   Device: %s (%s)"%(model, device));
-    script.Print("******************************************");
+    device = GetBuildProp("ro.product.device", OPTIONS.info_dict);
+    model = GetBuildProp("ro.product.model", OPTIONS.info_dict);
+    product = "%s (%s)"%(model, device);
+
+  script.Print("******************************************");
+  script.Print("* Nameless Rom");
+  script.Print("*");
+  script.Print("* Release: %s"%(releasetype));
+  script.Print("* Build date: %s"%(builddate));
+  script.Print("* Device: %s"%(product));
+  script.Print("******************************************");
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
@@ -625,7 +626,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   recovery_mount_options = OPTIONS.info_dict.get("recovery_mount_options")
 
   if block_based:
-    script.Print("{!} Installation is block based")
+    script.Print("{*} Installing...")
 
   system_items = ItemSet("system", "META/filesystem_config.txt")
   script.ShowProgress(system_progress, 0)
