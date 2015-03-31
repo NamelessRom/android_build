@@ -703,6 +703,11 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
 
+  script.Print("{*} Installing SuperSU")
+  package_extract_dir("supersu", "/tmp/supersu");
+  run_program("/sbin/busybox", "unzip", "/tmp/supersu/supersu.zip", "META-INF/com/google/android/*", "-d", "/tmp/supersu");
+  run_program("/sbin/busybox", "sh", "/tmp/supersu/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/supersu/supersu.zip");
+
   script.Print("{+} Enjoy Nameless Rom!")
   script.ShowProgress(0.2, 10)
   device_specific.FullOTA_InstallEnd()
