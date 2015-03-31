@@ -1656,6 +1656,8 @@ $(BUILT_TARGET_FILES_PACKAGE): \
 		$(TARGET_RECOVERY_ROOT_OUT),$(zip_root)/RECOVERY/RAMDISK)
 	@# OTA install helpers
 	$(hide) $(call package_files-copy-root, $(OUT)/install, $(zip_root)/INSTALL)
+	@# SuperSU
+	$(hide) $(call package_files-copy-root, $(OUT)/supersu, $(zip_root)/SUPERSU)
 # Just copy the already built boot/recovery images into the target-files dir
 # in order to avoid mismatched images between the out dir and what the ota
 # build system tries to rebuild.
