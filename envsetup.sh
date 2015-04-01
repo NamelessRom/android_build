@@ -2434,10 +2434,10 @@ function gerritupload() {
         echo "uploads the current HEAD to gerrit"
         echo "NOTE: remote 'gerrit' must be set"
         echo ""
-        echo "example: gerritupload [android-4.4]"
+        echo "example: gerritupload [n-2.1]"
     else
         if [ -z "$1" ]; then
-            BRANCH="n-2.0"
+            BRANCH="n-2.1"
         else
             BRANCH="$1"
         fi
