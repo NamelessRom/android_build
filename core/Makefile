@@ -1889,6 +1889,9 @@ else
 endif
 endif
 
+BOOT_ZIP_FROM_IMAGE_SCRIPT := ./build/tools/releasetools/boot_flash_from_image
+KERNEL_PATH := $(TARGET_KERNEL_SOURCE)/arch/arm/configs/$(TARGET_KERNEL_CONFIG)
+
 ifeq ($(TARGET_OTA_ASSERT_DEVICE),)
     $(INTERNAL_OTA_PACKAGE_TARGET): override_device := auto
 else
@@ -1922,12 +1925,18 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 
 NAMELESS_TARGET_PACKAGE := $(PRODUCT_OUT)/nameless-$(NAMELESS_VERSION).zip
 
-.PHONY: otapackage bacon
+.PHONY: otapackage bacon bootzip
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(NAMELESS_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(NAMELESS_TARGET_PACKAGE) > $(NAMELESS_TARGET_PACKAGE).md5sum
 	@echo -e ${CL_CYN}"Package Complete: $(NAMELESS_TARGET_PACKAGE)"${CL_RST}
+
+bootzip: bootimage
+	$(BOOT_ZIP_FROM_IMAGE_SCRIPT) \
+	   $(recovery_fstab) \
+	   $(OUT) \
+	   $(TARGET_DEVICE)
 
 # -----------------------------------------------------------------
 # The factory package
