@@ -611,7 +611,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   builddate = GetBuildProp("ro.build.date", OPTIONS.info_dict);
   releasetype = GetBuildProp("ro.nameless.releasetype", OPTIONS.info_dict);
 
-  if OPTIONS.override_prop:
+  if not OPTIONS.override_prop:
     product = GetBuildProp("ro.build.product", OPTIONS.info_dict);
   else:
     device = GetBuildProp("ro.product.device", OPTIONS.info_dict);
