@@ -181,7 +181,7 @@ include $(BUILD_SYSTEM)/device.mk
 
 # A nameless build needs only the nameless product makefiles.
 ifneq ($(NAMELESS_BUILD),)
-  all_product_configs := $(shell ls device/*/$(NAMELESS_BUILD)/nameless_$(NAMELESS_BUILD).mk)
+  all_product_configs := $(shell find device -path "*/$(NAMELESS_BUILD)/nameless_$(NAMELESS_BUILD).mk")
 else
   ifneq ($(strip $(TARGET_BUILD_APPS)),)
   # An unbundled app build needs only the core product makefiles.
