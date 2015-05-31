@@ -614,7 +614,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   if not OPTIONS.override_prop:
     product = GetBuildProp("ro.build.product", OPTIONS.info_dict);
   else:
-    device = GetBuildProp("ro.product.device", OPTIONS.info_dict);
+    device = GetBuildProp("ro.nameless.device", OPTIONS.info_dict);
     model = GetBuildProp("ro.product.model", OPTIONS.info_dict);
     product = "%s (%s)"%(model, device);
 
