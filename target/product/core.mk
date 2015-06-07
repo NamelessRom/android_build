@@ -39,7 +39,6 @@ PRODUCT_PACKAGES += \
     InputDevices \
     KeyChain \
     Keyguard \
-    LatinIME \
     Launcher3 \
     ManagedProvisioning \
     PicoTts \
