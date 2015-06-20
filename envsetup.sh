@@ -34,6 +34,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - repopick: Utility to fetch changes from Gerrit.
 - installboot: Installs a boot.img to the connected device.
 - installrecovery: Installs a recovery.img to the connected device.
+- kernelrampage: Creates the bootimage with using all processors.
 
 Look at the source to view more functions. The complete list is:
 EOF
@@ -2629,6 +2630,19 @@ function make()
     echo
     return $ret
 }
+
+# Make bootimage using all available CPUs
+function kernelrampage() {
+    case `uname -s` in
+        Darwin)
+            make bootimage -j `sysctl hw.ncpu|cut -d" " -f2` "$@"
+            ;;
+        *)
+            schedtool -B -n 1 -e ionice -n 1 make bootimage -j$(cat /proc/cpuinfo | grep "^processor" | wc -l) "$@"
+            ;;
+    esac
+}
+
 
 function addgerrit() {
     if [ -z "$1" ] || [ "$1" = '--help' ]; then
