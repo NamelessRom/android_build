@@ -611,10 +611,10 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   builddate = GetBuildProp("ro.build.date", OPTIONS.info_dict);
   releasetype = GetBuildProp("ro.nameless.releasetype", OPTIONS.info_dict);
 
+  device = GetBuildProp("ro.nameless.device", OPTIONS.info_dict);
   if not OPTIONS.override_prop:
-    product = GetBuildProp("ro.build.product", OPTIONS.info_dict);
+    product = "%s"%(device);
   else:
-    device = GetBuildProp("ro.nameless.device", OPTIONS.info_dict);
     product = "%s (unified)"%(device);
 
   script.Print("******************************************");
