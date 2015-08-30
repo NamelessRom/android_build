@@ -2339,10 +2339,18 @@ function cmrebase() {
 function mka() {
     case `uname -s` in
         Darwin)
-            make -j `sysctl hw.ncpu|cut -d" " -f2` "$@"
+            if [ -z ${BUILD_CUSTOM_MAKE_JOBS} ]; then
+                make -j `sysctl hw.ncpu|cut -d" " -f2` "$@"
+            else
+                make -j ${BUILD_CUSTOM_MAKE_JOBS} "$@"
+            fi
             ;;
         *)
-            schedtool -B -n 1 -e ionice -n 1 make -j$(cat /proc/cpuinfo | grep "^processor" | wc -l) "$@"
+            if [ -z ${BUILD_CUSTOM_MAKE_JOBS} ]; then
+                schedtool -B -n 1 -e ionice -n 1 make -j$(cat /proc/cpuinfo | grep "^processor" | wc -l) "$@"
+            else
+                schedtool -B -n 1 -e ionice -n 1 make -j${BUILD_CUSTOM_MAKE_JOBS} "$@"
+            fi
             ;;
     esac
 }
