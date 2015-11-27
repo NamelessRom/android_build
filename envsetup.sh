@@ -2668,7 +2668,7 @@ function addgerrit() {
         else
             PREFIX="$3"
         fi
-        git remote add gerrit ssh://$username@gerrit.nameless-rom.org:29418/${PROJECT}/"${PREFIX}${REPO}".git
+        git remote add gerrit ssh://$username@review.nameless-rom.org:29518/${PROJECT}/"${PREFIX}${REPO}".git
         if ( git remote -v | grep -qv aosp ) then
             echo "created remote gerrit: ${PROJECT}/${PREFIX}${REPO}"
         else
