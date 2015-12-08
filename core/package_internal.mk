@@ -325,6 +325,8 @@ framework_res_package_export := \
 ifneq ($(LOCAL_IGNORE_SUBDIR), true)
 cm_plat_res_package_export := \
     $(call intermediates-dir-for,APPS,org.cyanogenmod.platform-res,,COMMON)/package-export.apk
+nameless_plat_res_package_export := \
+    $(call intermediates-dir-for,APPS,org.namelessrom.platform-res,,COMMON)/package-export.apk
 endif # LOCAL_IGNORE_SUBDIR
 
 # We can't depend directly on the export.apk file; it won't get its
@@ -336,6 +338,8 @@ framework_res_package_export_deps := \
 ifneq ($(LOCAL_IGNORE_SUBDIR), true)
 cm_plat_res_package_export_deps := \
     $(dir $(cm_plat_res_package_export))src/R.stamp
+nameless_plat_res_package_export_deps := \
+    $(dir $(nameless_plat_res_package_export))src/R.stamp
 endif # LOCAL_IGNORE_SUBDIR
 
 endif # LOCAL_SDK_RES_VERSION
@@ -354,6 +358,10 @@ all_library_res_package_exports += \
     $(cm_plat_res_package_export)
 all_library_res_package_export_deps += \
     $(cm_plat_res_package_export_deps)
+all_library_res_package_exports += \
+    $(nameless_plat_res_package_export)
+all_library_res_package_export_deps += \
+    $(nameless_plat_res_package_export_deps)
 endif # LOCAL_IGNORE_SUBDIR
 
 $(resource_export_package) $(R_file_stamp) $(LOCAL_BUILT_MODULE): $(all_library_res_package_export_deps)
