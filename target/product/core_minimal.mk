@@ -97,7 +97,6 @@ PRODUCT_BOOT_JARS := \
 
 # The order of PRODUCT_SYSTEM_SERVER_JARS matters.
 PRODUCT_SYSTEM_SERVER_JARS := \
-    org.namelessrom.platform \
     org.cyanogenmod.platform \
     org.cyanogenmod.hardware \
     services \
