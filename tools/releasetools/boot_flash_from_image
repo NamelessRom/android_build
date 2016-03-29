@@ -145,4 +145,4 @@ call(['java', '-jar', signer, testkey_x, testkey_p, "%s.zip" % zip_dir, "%s-sign
 remove("%s.zip" % zip_dir)
 #rmtree(zip_dir)
 print md5(open("%s-signed.zip" % zip_dir, "rb").read()).hexdigest() + " %s-signed.zip" % (kernel_version)
-print "kernel saved to %s-signed.zip" % zip_dir
+print "\033[36mMade boot zip: %s-signed.zip\033[0m" % zip_dir
