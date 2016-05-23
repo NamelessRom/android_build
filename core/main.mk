@@ -175,7 +175,7 @@ $(info $(space))
 $(info Please follow the machine setup instructions at)
 $(info $(space)$(space)$(space)$(space)https://source.android.com/source/initializing.html)
 $(info ************************************************************)
-$(error stop)
+$(info You may continue but you are warned!)
 endif
 
 # Check for the current JDK.
